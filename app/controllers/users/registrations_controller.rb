@@ -1,19 +1,31 @@
 # frozen_string_literal: true
 
 class Users::RegistrationsController < Devise::RegistrationsController
-  # before_action :configure_sign_up_params, only: [:create]
-  # before_action :configure_account_update_params, only: [:update]
- 
+   skip_before_action :require_no_authentication, only: [:new, :create]
+   #this can be called off if necessary
+   #before_action :configure_sign_up_params, only: [:create]
+   before_action :configure_account_update_params, only: [:update]
+   #before_action :authenticate_user!
+
+   after_action :verify_authorized, except:  [:index], unless: :devise_controller?
+   after_action :verify_policy_scoped, except: [:index,:show, :new, :create], unless: :skip_pundit?
 
   # GET /resource/sign_up
-  # def new
-  #   super
-  # end
+  # this is being used while user signup
+   def new
+    
+     super 
+     @user = User.new
+     #debugger
+     authorize @user
+     #debugger
+   end
 
   # POST /resource
-  # def create
-  #   super
-  # end
+   def create
+     super
+     #debugger
+   end
 
   # GET /resource/edit
   # def edit
@@ -60,4 +72,5 @@ class Users::RegistrationsController < Devise::RegistrationsController
   # def after_inactive_sign_up_path_for(resource)
   #   super(resource)
   # end
+  
 end

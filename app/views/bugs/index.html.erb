@@ -16,15 +16,69 @@
 
   <tbody>
     <% @bugs.each do |bug| %>
-      <tr>
-        <td><%= bug.title %></td>
-        <td><%= bug.description %></td>
-        <td><%= bug.status %></td>
-        <td><%= bug.user_id %></td>
-        <td><%= link_to 'Show', bug %></td>
-        <td><%= link_to 'Edit', edit_bug_path(bug) %></td>
-        <td><%= link_to 'Destroy', bug, method: :delete, data: { confirm: 'Are you sure?' } %></td>
-      </tr>
+      <% if ((bug.status == "Active") && (policy(bug).Developer_bug_view?) && (bug.user_id == current_user.id)) %>
+        <tr>
+          <td><%= bug.title %></td>
+          <td><%= bug.description %></td>
+          <td><%= bug.status %></td>
+          <td><%= bug.user_id %></td>
+          <td><%= image_tag bug.image.url(:small) %></td>
+          <% if policy(bug).is_Admin_or_QA? %>
+            <td><%= link_to 'Show', bug %></td>
+            <td><%= link_to 'Edit', edit_bug_path(bug) %></td>
+            <td><%= link_to 'Destroy', bug, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+          <% end %>
+          <% if policy(bug).Developer_bug_view? %>
+            <td><%= link_to 'Mark Resolved', {:controller => "bugs",
+                                   :action => "editstatus",
+                                   :id => bug.id,
+                                   :change_status => "Resolved"}, method: 'post', class: "btn btn-sm btn-success" %>
+          <% end %>
+        </tr>
+      <% end %>  
+      <% if (((bug.status == "Active") ||(bug.status == "Resolved") ) && (policy(bug).QA_bug_view?)) %>
+        <tr>
+          <td><%= bug.title %></td>
+          <td><%= bug.description %></td>
+          <td><%= bug.status %></td>
+          <td><%= bug.user_id %></td>
+          <td><%= image_tag bug.image.url(:small) %></td>
+          <% if policy(bug).is_Admin_or_QA? %>
+            <td><%= link_to 'Show', bug %></td>
+            <td><%= link_to 'Edit', edit_bug_path(bug) %></td>
+            <td><%= link_to 'Destroy', bug, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+          <% end %>
+          <% if ((policy(bug).QA_bug_view?) && (bug.status == "Resolved"))%>
+            <td><%= link_to 'Mark Done', {:controller => "bugs",
+                                   :action => "editstatus",
+                                   :id => bug.id,
+                                   :change_status => "Done"}, method: 'post', class: "btn btn-sm btn-success" %>
+            <% if (bug.status != "Active") %>
+              <td><%= link_to 'Active Again', {:controller => "bugs",
+                                     :action => "editstatus",
+                                     :id => bug.id,
+                                     :change_status => "Active"}, method: 'post', class: "btn btn-sm btn-success" %>
+            <% end %>
+          <% end %>
+        </tr>
+      <% end %> 
+      <% if (policy(bug).Admin_bug_view?) %>
+        <tr>
+          <td><%= bug.title %></td>
+          <td><%= bug.description %></td>
+          <td><%= bug.status %></td>
+          <td><%= bug.user_id %></td>
+          <td><%= image_tag bug.image.url(:small) %></td>
+          <% if policy(bug).is_Admin_or_QA? %>
+            <td><%= link_to 'Show', bug %></td>
+            <td><%= link_to 'Edit', edit_bug_path(bug) %></td>
+            <td><%= link_to 'Destroy', bug, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+          <% end %>
+          <% if policy(bug).Developer_bug_view? %>
+            <td><%= link_to 'Mark Resolved', policy(bug).change_to_resolve %></td>
+          <% end %>
+        </tr>
+      <% end %> 
     <% end %>
   </tbody>
 </table>

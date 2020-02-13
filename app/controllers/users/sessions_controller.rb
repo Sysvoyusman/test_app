@@ -2,16 +2,23 @@
 
 class Users::SessionsController < Devise::SessionsController
   # before_action :configure_sign_in_params, only: [:create]
+  
 
-  # GET /resource/sign_in
-  # def new
-  #   super
-  # end
-
+   #GET /resource/sign_in
+   def new
+     super
+     #debugger
+     
+   end
+  #Comes here After entering credintials and clink in Login 
   # POST /resource/sign_in
-  # def create
-  #   super
-  # end
+   def create
+     super
+     if current_user.role == "Admin"
+      session[:account_type] = "Admin"
+     end
+      
+   end
 
   # DELETE /resource/sign_out
   # def destroy
